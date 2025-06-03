@@ -6,7 +6,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 const { checkWin, checkTaken, createGameState } = require("./game.js")
-const { authRouter, authSession } = require("./auth.js")
+const { authRouter, authSession, User } = require("./auth.js")
 
 dotenv.config()
 const corsConfig = {
@@ -57,8 +57,29 @@ io.on("connection", client => {
             gameState.last.exists = true
     
             checkWin(gameState)
-    
-            gameState.xTurn = !gameState.xTurn
+
+            if (gameState.status != -1) { 
+                const user = client.request.session?.user
+                const roomId = clientRoomId[client.id]
+
+                if (user && (roomId.startsWith("g_") || roomId.startsWith("r_"))) {
+                    const isRanked = roomId.startsWith("r_")
+                    const isDraw = gameState.status == 2
+                    const isWinner = (client.number == gameState.xNumber ? 0 : 1) == gameState.status
+
+                    const update = {
+                        [isRanked ? "rankedGames" : "randomGames"]: 1,
+                        ...(isDraw ? {} : isWinner 
+                            ? { [isRanked ? "rankedWins" : "randomWins"]: 1, }
+                            : { [isRanked ? "rankedLosses" : "randomLosses"]: 1 }
+                        )
+                    }
+
+                    User.findByIdAndUpdate(user._id, update)
+                }
+            } else {
+                gameState.xTurn = !gameState.xTurn
+            }
 
             setGameState(gameState)
             io.to(clientRoomId[client.id]).emit("gameState", JSON.stringify(gameState))

@@ -12,7 +12,19 @@ const userSchema = new mongoose.Schema({
     email: { type: String, index: { unique: true }},
     username: { type: String, unique: true },
     passwordHash: String,
-    isAdmin: Boolean
+    dateCreated: { type: Date, default: Date.now },
+    isAdmin: Boolean,
+
+    eloBlitz: { type: Number, default: 400 },
+    eloClassic: { type: Number, default: 400 },
+    
+    rankedGames: { type: Number, default: 0 },
+    rankedWins: { type: Number, default: 0 },
+    rankedLosses: { type: Number, default: 0 },
+
+    randomGames: { type: Number, default: 0 },
+    randomWins: { type: Number, default: 0 },
+    randomLosses: { type: Number, default: 0 }
 })
 
 const User = mongoose.model("User", userSchema)
@@ -93,8 +105,17 @@ function verifyPassword(passwordHash, password) {
     return bcrypt.compareSync(password, passwordHash)
 }
 
-function getPublicSessionData({ _id, email, username, isAdmin }) {
-    return { _id, email, username, isAdmin }
+function getPublicSessionData(sessionData) {
+    const allowedKeys = [
+        "_id", "email", "username", "isAdmin", 
+        "eloBlitz", "eloClassic", 
+        "rankedGames", "rankedWins", "rankedLosses", 
+        "randomGames", "randomWins", "randomLosses"
+    ];
+    
+    const entries = allowedKeys
+        .map(key => [key, sessionData[key]]);
+    return Object.fromEntries(entries);
 }
 
 authRouter.post("/register", (req, res) => {
@@ -171,4 +192,4 @@ authRouter.get("/", requireAuthHandler, (req, res) => {
     res.send(getPublicSessionData(req.session.user))
 })
 
-module.exports = { authRouter, authSession, requireAuthHandler, requireAdminHandlers }
+module.exports = { authRouter, authSession, requireAuthHandler, requireAdminHandlers, User }
