@@ -1,4 +1,4 @@
-module.exports = { checkWin, checkTaken, createGameState }
+module.exports = { checkWin, checkTaken, createGameState, moveErrorMsg }
 
 function checkWin(gameState) {
     var currentMoves = gameState.xTurn ? gameState.xes : gameState.os
@@ -23,13 +23,16 @@ function checkWin(gameState) {
 }
 
 function checkTaken(pos, gameState) {
-    for (xx of gameState.xes) {
-        if (pos.x == xx.x && pos.y == xx.y) return true
-    }
-    for (o of gameState.os) {
-        if (pos.x == o.x && pos.y == o.y) return true
-    }
-    return false
+    return [...gameState.xes, ...gameState.os].some(p => p.x === pos.x && p.y === pos.y)
+}
+
+function moveErrorMsg({ x, y }, gameState) {
+    const allMoves = [...gameState.xes, ...gameState.os]
+
+    if (x >= 0 && x < 20 && y >= 0 && y < 20) return ""
+    if (!allMoves.some(p => Math.abs(p.x - x) <= 5 && Math.abs(p.y - y) <= 5)) return "Stone too far away"
+
+    return ""   
 }
 
 function createGameState() {

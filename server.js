@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const express = require("express")
 const bodyParser = require("body-parser")
 const cors = require("cors")
-const { checkWin, checkTaken, createGameState } = require("./game.js")
+const { checkWin, checkTaken, createGameState, moveErrorMsg } = require("./game.js")
 const { authRouter, authSession, User } = require("./auth.js")
 
 dotenv.config()
@@ -51,6 +51,12 @@ io.on("connection", client => {
 
         const pos = JSON.parse(data)
     
+        errorMsg = moveErrorMsg(pos, gameState)
+        if (errorMsg) {
+            client.emit("invalidMove", errorMsg)
+            return
+        }
+
         if (!checkTaken(pos, gameState) && client.number === (gameState.xTurn ? gameState.xNumber : 1 - gameState.xNumber)) {
             if (gameState.xTurn) { gameState.xes.push(pos) } else { gameState.os.push(pos) }
     
