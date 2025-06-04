@@ -31,6 +31,7 @@ var clientRoomId = {}
 var randomQueue = []
 
 io.on("connection", client => {
+    client.on("disconnect", handleDisconnect)
     client.on("click", handleClick)
     client.on("joinGame", handleJoinGame)
     client.on("createGame", handleCreateGame)
@@ -83,6 +84,16 @@ io.on("connection", client => {
 
             setGameState(gameState)
             io.to(clientRoomId[client.id]).emit("gameState", JSON.stringify(gameState))
+        }
+    }
+
+    function handleDisconnect() {
+        if (randomQueue.includes(client)) {
+            randomQueue = randomQueue.filter(c => c.id !== client.id)
+        }
+        if (clientRoomId[client.id]) {
+            client.leave(clientRoomId[client.id])
+            delete clientRoomId[client.id]
         }
     }
 
@@ -143,12 +154,13 @@ io.on("connection", client => {
     function joinRandom() {
         if (randomQueue.length > 0) {
             const opponent = randomQueue.shift()
-            const roomId = "g_" + createRoomCodeFriendly(6)
+            const roomId = "g_" + createRoomCodeRandom()
 
             clientRoomId[client.id] = roomId
             clientRoomId[opponent.id] = roomId
 
             var gameState = createGameState()
+            gameState.status = -1
             gameState.usernames[1] = client.request.session?.user?.username || ""
             gameState.usernames[0] = opponent.request.session?.user?.username || ""
             gameStates[roomId] = gameState
