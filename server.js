@@ -10,7 +10,7 @@ const { authRouter, authSession, User } = require("./auth.js")
 
 dotenv.config()
 const corsConfig = {
-    origin: "http://localhost:8080",
+    origin: ["http://localhost:8080", "https://xo-r.github.io"],
     credentials: true
 }
 
