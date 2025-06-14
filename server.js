@@ -7,6 +7,7 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 const { checkWin, checkTaken, createGameState, moveErrorMsg } = require("./game.js")
 const { authRouter, authSession, User } = require("./auth.js")
+const { apiRouter } = require("./api.js")
 
 dotenv.config()
 const corsConfig = {
@@ -23,6 +24,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(authSession)
 app.use("/auth", authRouter)
+app.use("/api", apiRouter)
 io.use((s, next) => authSession(s.request, {}, next))
 
 var gameStates = {}
