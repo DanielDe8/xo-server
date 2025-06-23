@@ -27,6 +27,8 @@ app.use("/auth", authRouter)
 app.use("/api", apiRouter)
 io.use((s, next) => authSession(s.request, {}, next))
 
+app.get("/", (req, res) => res.send("API running!"))
+
 var gameStates = {}
 var clientRoomId = {}
 
