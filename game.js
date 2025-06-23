@@ -28,7 +28,7 @@ function checkTaken(pos, gameState) {
 
 function moveErrorMsg({ x, y }, gameState) {
     const allMoves = [...gameState.xes, ...gameState.os]
-    
+
     if (!gameState.last.exists) return ""
     if (!allMoves.some(p => Math.abs(p.x - x) <= 5 && Math.abs(p.y - y) <= 5)) return "Stone too far away"
 
@@ -37,12 +37,13 @@ function moveErrorMsg({ x, y }, gameState) {
 
 function createGameState() {
     return {
-        xes: [  ], //{ x: 0, y: 0 }
+        xes: [],
         os: [],
         last: { x: 0, y: 0, exists: false },
         xTurn: true,
         xNumber: Math.round(Math.random()),
-        status: -2,
+        status: -2, // -2 not started, -1 ongoing, 0 x won, 1 o won, 2 draw, 
+        playerDisconnected: false,
         usernames: [ "", "" ]
     }
 }

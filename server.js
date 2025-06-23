@@ -101,10 +101,19 @@ io.on("connection", client => {
     }
 
     function handleDisconnect() {
+        console.log(client.id + " disconnected")
         if (randomQueue.includes(client)) {
             randomQueue = randomQueue.filter(c => c.id !== client.id)
         }
         if (clientRoomId[client.id]) {
+            const gameState = getGameState()
+            if (gameState) {
+                gameState.status = (client.number == gameState.xNumber ? 1 : 0)
+                gameState.playerDisconnected = true
+                setGameState(gameState)
+                io.to(clientRoomId[client.id]).emit("gameState", JSON.stringify(gameState))
+            }
+
             client.leave(clientRoomId[client.id])
             delete clientRoomId[client.id]
         }
