@@ -211,6 +211,6 @@ function createRoomCodeRandom(len) {
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log("Connected to MongoDB!")
-        server.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}...`))
+        server.listen(process.env.PORT, "0.0.0.0", () => console.log(`Listening on port ${process.env.PORT}...`))
     })
     .catch(error => console.error("Could not connect to MongoDB... ", error))
