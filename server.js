@@ -60,13 +60,18 @@ io.on("connection", client => {
         }
 
         if (!checkTaken(pos, gameState) && client.number === (gameState.xTurn ? gameState.xNumber : 1 - gameState.xNumber)) {
-            if (gameState.xTurn) { gameState.xes.push(pos) } else { gameState.os.push(pos) }
-    
-            gameState.last = pos
-            gameState.last.exists = true
-    
-            checkWin(gameState)
+            if (!gameState.last.exists) {
+                gameState.xes.push({ x: 0, y: 0})
+                gameState.last = { x: 0, y: 0, exists: true }
 
+                client.emit("firstMoveOffset", JSON.stringify(pos))
+            } else { 
+                if (gameState.xTurn) { gameState.xes.push(pos) } else { gameState.os.push(pos) }
+                gameState.last = { ...pos, exists: true }
+
+                checkWin(gameState)
+            }
+    
             if (gameState.status != -1) { 
                 const user = client.request.session?.user
                 const roomId = clientRoomId[client.id]
