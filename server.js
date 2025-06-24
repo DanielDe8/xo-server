@@ -40,6 +40,8 @@ io.on("connection", client => {
     client.on("joinGame", handleJoinGame)
     client.on("createGame", handleCreateGame)
 
+    console.log(client.id +  " connected")
+
     function getGameState() {
         return gameStates[clientRoomId[client.id]]
     }
@@ -91,7 +93,12 @@ io.on("connection", client => {
                         )
                     }
 
-                    User.findByIdAndUpdate(user._id, update)
+                    User.findByIdAndUpdate(user._id, update).then((err, docs) => {
+                        if (err) {
+                            console.log(err)
+                            return
+                        }
+                    })
                 }
             } else {
                 gameState.xTurn = !gameState.xTurn
