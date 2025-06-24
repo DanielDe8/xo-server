@@ -109,7 +109,7 @@ io.on("connection", client => {
         }
         if (clientRoomId[client.id]) {
             const gameState = getGameState()
-            if (gameState) {
+            if (gameState && gameState.status == -1) {
                 gameState.status = (client.number == gameState.xNumber ? 1 : 0)
                 gameState.playerDisconnected = true
                 setGameState(gameState)
