@@ -11,7 +11,7 @@ const { apiRouter } = require("./api.js")
 
 dotenv.config()
 const corsConfig = {
-    origin: ["http://localhost:8080", "https://xo-r.github.io", "http://localhost:5173", "http://192.168.1.209:5173"],
+    origin: ["http://localhost:8080", "https://xo-r.github.io", "http://localhost:5173", "http://192.168.1.209:5173", "https://xo-r.netlify.app"],
     credentials: true
 }
 
