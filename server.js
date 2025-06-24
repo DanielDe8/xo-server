@@ -77,28 +77,13 @@ io.on("connection", client => {
             }
     
             if (gameState.status != -1) { 
-                const user = client.request.session?.user
                 const roomId = clientRoomId[client.id]
+                const sockets = io.sockets.adapter.rooms.get(roomId)
 
-                if (user && (roomId.startsWith("g_") || roomId.startsWith("r_"))) {
-                    const isRanked = roomId.startsWith("r_")
-                    const isDraw = gameState.status == 2
-                    const isWinner = (client.number == gameState.xNumber ? 0 : 1) == gameState.status
+                for (const clientId of sockets) {
+                    const clientSocket = io.sockets.sockets.get(clientId)
 
-                    const update = {
-                        [isRanked ? "rankedGames" : "randomGames"]: 1,
-                        ...(isDraw ? {} : isWinner 
-                            ? { [isRanked ? "rankedWins" : "randomWins"]: 1, }
-                            : { [isRanked ? "rankedLosses" : "randomLosses"]: 1 }
-                        )
-                    }
-
-                    User.findByIdAndUpdate(user._id, update).then((err, docs) => {
-                        if (err) {
-                            console.log(err)
-                            return
-                        }
-                    })
+                    gameOver(clientSocket, gameState)
                 }
             } else {
                 gameState.xTurn = !gameState.xTurn
@@ -209,6 +194,42 @@ io.on("connection", client => {
         }
     }
 })
+
+function gameOver(client, gameState) {
+    const user = client.request.session?.user
+    const roomId = clientRoomId[client.id]
+
+    if (user && (roomId.startsWith("g_") || roomId.startsWith("r_"))) {
+        const isRanked = roomId.startsWith("r_")
+        const isDraw = gameState.status == 2
+        const isWinner = (client.number == gameState.xNumber ? 0 : 1) == gameState.status
+
+        const update = {
+            $inc: {
+                [isRanked ? "rankedGames" : "randomGames"]: 1,
+                ...(isDraw ? {} : isWinner 
+                    ? { [isRanked ? "rankedWins" : "randomWins"]: 1, }
+                    : { [isRanked ? "rankedLosses" : "randomLosses"]: 1 }
+                )
+            }
+        }
+
+        User.findByIdAndUpdate(user._id, update).then(() => {
+            User.findById(user._id).then(dbUser => {
+                const sessionUser = dbUser.toObject()
+                delete sessionUser.passwordHash
+
+                client.request.session.user = sessionUser
+                client.request.session.save((err) => {
+                    if (err) {
+                        console.log(err)
+                        return
+                    }
+                })
+            })
+        }).catch(err => console.log(err))
+    }
+}
 
 function createRoomCodeFriendly(len) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
