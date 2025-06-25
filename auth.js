@@ -1,33 +1,12 @@
-const mongoose = require("mongoose")
 const express = require("express")
 const Joi = require("joi")
 const bcrypt = require("bcrypt")
 const expressSession = require("express-session")
-const dotenv = require('dotenv')
+const dotenv = require("dotenv")
+const { User } = require("./db.js")
 
 dotenv.config()
 const authRouter = express.Router()
-
-const userSchema = new mongoose.Schema({
-    email: { type: String, index: { unique: true }},
-    username: { type: String, unique: true },
-    passwordHash: String,
-    dateCreated: { type: Date, default: Date.now },
-    isAdmin: Boolean,
-
-    eloBlitz: { type: Number, default: 400 },
-    eloClassic: { type: Number, default: 400 },
-    
-    rankedGames: { type: Number, default: 0 },
-    rankedWins: { type: Number, default: 0 },
-    rankedLosses: { type: Number, default: 0 },
-
-    randomGames: { type: Number, default: 0 },
-    randomWins: { type: Number, default: 0 },
-    randomLosses: { type: Number, default: 0 }
-})
-
-const User = mongoose.model("User", userSchema)
 
 const authSession = expressSession({
     secret: process.env.SESSION_SECRET,
