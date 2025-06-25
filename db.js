@@ -18,7 +18,22 @@ const userSchema = new mongoose.Schema({
     randomWins: { type: Number, default: 0 },
     randomLosses: { type: Number, default: 0 }
 })
+const gameSchema = new mongoose.Schema({
+    player1: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    player2: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
+    xes: [ Object ],
+    os: [ Object ],
+    last: Object,
+    winLine: Object,
+
+    status: Number, // -1 for ongoing, 0 for player1 win, 1 for player2 win, 2 for draw
+    playerDisconnected: Boolean,
+
+    dateStarted: Date
+})
 
 const User = mongoose.model("User", userSchema)
+const Game = mongoose.model("Game", gameSchema)
 
-module.exports = { User }
+module.exports = { User, Game }
