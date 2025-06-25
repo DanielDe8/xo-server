@@ -98,8 +98,7 @@ io.on("connection", client => {
                 gameState.status = (client.number == gameState.xNumber ? 1 : 0)
                 gameState.playerDisconnected = true
 
-                gameOver(gameState)
-                updateStats(client, gameState)
+                gameOver(gameState, client)
 
                 setGameState(gameState)
                 io.to(clientRoomId[client.id]).emit("gameState", JSON.stringify(gameState))
@@ -193,15 +192,19 @@ io.on("connection", client => {
         }
     }
 
-    function gameOver(gameState) {
+    function gameOver(gameState, extraClient = null) {
         const roomId = clientRoomId[client.id]
-        const sockets = io.sockets.adapter.rooms.get(roomId)
+        var sockets = io.sockets.adapter.rooms.get(roomId)
+        if (extraClient) sockets.push(extraClient)
 
         for (const clientId of sockets) {
             const clientSocket = io.sockets.sockets.get(clientId)
 
             updateStats(clientSocket, gameState)
         }
+        
+        delete gameStates[roomId]
+        delete clientRoomId
     }
 })
 
