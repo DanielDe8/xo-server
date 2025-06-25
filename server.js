@@ -99,6 +99,7 @@ io.on("connection", client => {
                 gameState.playerDisconnected = true
 
                 gameOver(gameState)
+                updateStats(client, gameState)
 
                 setGameState(gameState)
                 io.to(clientRoomId[client.id]).emit("gameState", JSON.stringify(gameState))
