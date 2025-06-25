@@ -157,6 +157,7 @@ io.on("connection", client => {
         var gameState = getGameState()
         gameState.status = -1
         gameState.usernames[1] = client.request.session?.user?.username || "",
+        gameState.dateStarted = Date.now()
         setGameState(gameState)
 
         client.join(roomId)
@@ -176,6 +177,7 @@ io.on("connection", client => {
             gameState.status = -1
             gameState.usernames[1] = client.request.session?.user?.username || ""
             gameState.usernames[0] = opponent.request.session?.user?.username || ""
+            gameState.dateStarted = Date.now()
             gameStates[roomId] = gameState
 
             client.join(roomId)

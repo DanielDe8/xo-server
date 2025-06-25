@@ -44,6 +44,7 @@ function createGameState() {
         xNumber: Math.round(Math.random()),
         status: -2, // -2 not started, -1 ongoing, 0 x won, 1 o won, 2 draw, 
         playerDisconnected: false,
-        usernames: [ "", "" ]
+        usernames: [ "", "" ],
+        dateStarted: Date.now()
     }
 }
