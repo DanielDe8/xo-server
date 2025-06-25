@@ -77,14 +77,7 @@ io.on("connection", client => {
             }
     
             if (gameState.status != -1) { 
-                const roomId = clientRoomId[client.id]
-                const sockets = io.sockets.adapter.rooms.get(roomId)
-
-                for (const clientId of sockets) {
-                    const clientSocket = io.sockets.sockets.get(clientId)
-
-                    gameOver(clientSocket, gameState)
-                }
+                gameOver(gameState)
             } else {
                 gameState.xTurn = !gameState.xTurn
             }
@@ -104,6 +97,9 @@ io.on("connection", client => {
             if (gameState && gameState.status == -1) {
                 gameState.status = (client.number == gameState.xNumber ? 1 : 0)
                 gameState.playerDisconnected = true
+
+                gameOver()
+
                 setGameState(gameState)
                 io.to(clientRoomId[client.id]).emit("gameState", JSON.stringify(gameState))
             }
@@ -193,9 +189,20 @@ io.on("connection", client => {
             client.emit("preInit")
         }
     }
+
+    function gameOver(gameState) {
+        const roomId = clientRoomId[client.id]
+        const sockets = io.sockets.adapter.rooms.get(roomId)
+
+        for (const clientId of sockets) {
+            const clientSocket = io.sockets.sockets.get(clientId)
+
+            updateStats(clientSocket, gameState)
+        }
+    }
 })
 
-function gameOver(client, gameState) {
+function updateStats(client, gameState) {
     const user = client.request.session?.user
     const roomId = clientRoomId[client.id]
 
