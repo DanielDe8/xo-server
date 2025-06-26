@@ -199,7 +199,7 @@ io.on("connection", client => {
         if (extraClient) sockets.add(extraClient.id)
 
         for (const clientId of sockets) {
-            const clientSocket = io.sockets.sockets.get(clientId)
+            const clientSocket = io.sockets.sockets.get(clientId) || (extraClient?.id == clientId ? extraClient : null)
 
             updateStats(clientSocket, gameState, roomId)
 
