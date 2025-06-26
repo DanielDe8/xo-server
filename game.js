@@ -45,6 +45,7 @@ function createGameState() {
         status: -2, // -2 not started, -1 ongoing, 0 x won, 1 o won, 2 draw, 
         playerDisconnected: false,
         usernames: [ "", "" ],
-        dateStarted: Date.now()
+        dateStarted: Date.now(),
+        winLine: { a: { x: 0, y: 0 }, b: { x: 0, y: 0 } }
     }
 }

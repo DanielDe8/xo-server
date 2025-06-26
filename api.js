@@ -6,20 +6,35 @@ const { Game } = require("./db.js")
 const apiRouter = express.Router()
 
 apiRouter.get("/recent", requireAuthHandler, (req, res) => {
-    res.json([
-        {
-            player1: "Player1",
-            player2: "Player2",
-            status: "Finished",
-            createdAt: new Date().toISOString()
-        },
-        {
-            player1: "Player3",
-            player2: "Player4",
-            status: "In Progress",
-            createdAt: new Date().toISOString()
-        }
-    ])
+    const userId = new mongoose.Types.ObjectId(req.session.user._id)
+
+    Game.find({
+        $or: [
+            { player1: userId },
+            { player2: userId }
+        ]
+    })
+        .sort({ dateCreated: -1 })
+        .limit(10)
+        .lean()
+        .then(games => res.send(games))
+        .catch(e => res.status(500).send(e))
+})
+apiRouter.get("/games", (req, res) => {
+    Game.find()
+        .sort({ dateCreated: -1 })
+        .lean()
+        .then(games => res.send(games))
+        .catch(e => res.status(500).send(e))
+})
+apiRouter.get("/games/:id", (req, res) => {
+    Game.findById(req.params.id)
+        .lean()
+        .then(game => {
+            if (!game) return res.status(404).send("Game not found")
+            res.send(game)
+        })
+        .catch(e => res.status(500).send(e))
 })
 
 module.exports = { apiRouter }

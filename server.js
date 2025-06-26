@@ -6,8 +6,9 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 const { checkWin, checkTaken, createGameState, moveErrorMsg } = require("./game.js")
-const { authRouter, authSession, User } = require("./auth.js")
+const { authRouter, authSession } = require("./auth.js")
 const { apiRouter } = require("./api.js")
+const { User, Game } = require("./db.js")
 
 dotenv.config()
 const corsConfig = {
@@ -195,22 +196,25 @@ io.on("connection", client => {
     function gameOver(gameState, extraClient = null) {
         const roomId = clientRoomId[client.id]
         var sockets = io.sockets.adapter.rooms.get(roomId)
-        if (extraClient) sockets.push(extraClient)
+        if (extraClient) sockets.add(extraClient.id)
 
         for (const clientId of sockets) {
             const clientSocket = io.sockets.sockets.get(clientId)
 
-            updateStats(clientSocket, gameState)
+            updateStats(clientSocket, gameState, roomId)
+
+            delete clientRoomId[clientId]
+            clientSocket.leave(roomId)
         }
+
+        storeGame(gameState, roomId)
         
         delete gameStates[roomId]
-        delete clientRoomId
     }
 })
 
-function updateStats(client, gameState) {
+function updateStats(client, gameState, roomId) {
     const user = client.request.session?.user
-    const roomId = clientRoomId[client.id]
 
     if (user && (roomId.startsWith("g_") || roomId.startsWith("r_"))) {
         const isRanked = roomId.startsWith("r_")
@@ -242,6 +246,30 @@ function updateStats(client, gameState) {
             })
         }).catch(err => console.log(err))
     }
+}
+async function storeGame(gameState, roomId) {
+    const type = roomId.substring(0, 1)
+
+    const user1 = await User.findOne({ username: gameState.usernames[0] })
+    const user2 = await User.findOne({ username: gameState.usernames[1] })
+
+    Game.create({
+        player1: user1?._id || null,
+        player2: user2?._id || null,
+
+        xes: gameState.xes,
+        os: gameState.os,
+        type: type,
+        last: gameState.last,
+        winLine: gameState.winLine,
+
+        status: gameState.status,
+        playerDisconnected: gameState.playerDisconnected,
+
+        dateStarted: gameState.dateStarted
+    }).then((game) => {
+        console.log(`Stored game ${game._id}`)
+    }).catch(err => console.log(err))
 }
 
 function createRoomCodeFriendly(len) {
