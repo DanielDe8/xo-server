@@ -16,6 +16,7 @@ apiRouter.get("/recent", requireAuthHandler, (req, res) => {
     })
         .sort({ dateCreated: -1 })
         .limit(10)
+        .populate("player1 player2", "username")
         .lean()
         .then(games => res.send(games))
         .catch(e => res.status(500).send(e))
@@ -23,12 +24,14 @@ apiRouter.get("/recent", requireAuthHandler, (req, res) => {
 apiRouter.get("/games", (req, res) => {
     Game.find()
         .sort({ dateCreated: -1 })
+        .populate("player1 player2", "username")
         .lean()
         .then(games => res.send(games))
         .catch(e => res.status(500).send(e))
 })
 apiRouter.get("/games/:id", (req, res) => {
     Game.findById(req.params.id)
+        .populate("player1 player2", "username")
         .lean()
         .then(game => {
             if (!game) return res.status(404).send("Game not found")
