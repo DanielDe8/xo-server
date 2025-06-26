@@ -14,7 +14,7 @@ apiRouter.get("/recent", requireAuthHandler, (req, res) => {
             { player2: userId }
         ]
     })
-        .sort({ dateCreated: -1 })
+        .sort({ dateStarted: -1 })
         .limit(10)
         .populate("player1 player2", "username")
         .lean()
@@ -23,7 +23,7 @@ apiRouter.get("/recent", requireAuthHandler, (req, res) => {
 })
 apiRouter.get("/games", (req, res) => {
     Game.find()
-        .sort({ dateCreated: -1 })
+        .sort({ dateStarted: -1 })
         .populate("player1 player2", "username")
         .lean()
         .then(games => res.send(games))
