@@ -24,6 +24,7 @@ const gameSchema = new mongoose.Schema({
 
     xes: [ Object ],
     os: [ Object ],
+    xNumber: Number,
     type: String,
     last: Object,
     winLine: Object,

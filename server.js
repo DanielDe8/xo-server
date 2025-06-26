@@ -259,6 +259,7 @@ async function storeGame(gameState, roomId) {
 
         xes: gameState.xes,
         os: gameState.os,
+        xNumber: gameState.xNumber,
         type: type,
         last: gameState.last,
         winLine: gameState.winLine,
