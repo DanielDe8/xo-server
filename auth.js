@@ -2,12 +2,14 @@ const express = require("express")
 const Joi = require("joi")
 const bcrypt = require("bcrypt")
 const expressSession = require("express-session")
+const connectMongoDBSession = require("connect-mongodb-session")
 const dotenv = require("dotenv")
 const { User } = require("./db.js")
 
 dotenv.config()
 const authRouter = express.Router()
 
+const MongoDBStore = connectMongoDBSession(expressSession)
 const authSession = expressSession({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -15,7 +17,11 @@ const authSession = expressSession({
     cookie: {
         secure: process.env.NODE_ENV === "production",
         httpOnly: true
-    }
+    },
+    store: new MongoDBStore({
+        uri: process.env.MONGODB_URI,
+        collection: "sessions"
+    })
 })
 
 const requireAuthHandler = (req, res, next) => {
