@@ -37,7 +37,10 @@ apiRouter.get("/games/:id", (req, res) => {
             if (!game) return res.status(404).send("Game not found")
             res.send(game)
         })
-        .catch(e => res.status(500).send(e))
+        .catch(e => {
+            if (e.name == "CastError") return res.status(404).send("Game not found")
+            res.status(500).send(e)
+        })
 })
 
 module.exports = { apiRouter }
