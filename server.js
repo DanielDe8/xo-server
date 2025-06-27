@@ -202,9 +202,6 @@ io.on("connection", client => {
             const clientSocket = io.sockets.sockets.get(clientId) || (extraClient?.id == clientId ? extraClient : null)
 
             updateStats(clientSocket, gameState, roomId)
-
-            delete clientRoomId[clientId]
-            clientSocket.leave(roomId)
         }
 
         storeGame(gameState, roomId)
