@@ -11,7 +11,18 @@ function checkWin(gameState) {
     ]
 
     for (var dir of dirs) {
-        if (count(dir.x, dir.y) + count(-dir.x, -dir.y) + 1 >= 5) gameState.status = currentPlayer
+        const countForward = count(dir.x, dir.y)
+        const countBackward = count(-dir.x, -dir.y)
+
+        if (countForward + countBackward + 1 >= 5) {
+            gameState.status = currentPlayer
+            gameState.winLine = { 
+                a: { x: gameState.last.x + (dir.x * countForward), y: gameState.last.y + (dir.y * countForward) },
+                b: { x: gameState.last.x + (-dir.x * countBackward), y: gameState.last.y + (-dir.y * countBackward) }
+            }
+            console.log(gameState.winLine, countForward, countBackward)
+            return
+        }
     }
 
     function count(dx, dy, x = gameState.last.x, y = gameState.last.y, tmpCount = 0) {
