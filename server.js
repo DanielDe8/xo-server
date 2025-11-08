@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const express = require("express")
 const bodyParser = require("body-parser")
 const cors = require("cors")
-const { exec } = require("child_process")
+const { execSync } = require("child_process")
 const { checkWin, checkTaken, createGameState, moveErrorMsg } = require("./game.js")
 const { authRouter, authSession } = require("./auth.js")
 const { apiRouter } = require("./api.js")
@@ -31,8 +31,11 @@ io.use((s, next) => authSession(s.request, {}, next))
 
 app.get("/", (req, res) => res.send("API running!"))
 app.get("/temp", async (req, res) => {
-    const { stdout, stderr } = await exec("temp")
-    res.send(stdout)
+    try {
+        res.send(execSync("temp", { encoding: "utf8" }))
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
 })
 
 var gameStates = {}
